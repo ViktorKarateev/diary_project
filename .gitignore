@@ -14,9 +14,6 @@ __pycache__/
 # Django
 db.sqlite3
 
-# Poetry
-poetry.lock
-
 # OS
 .DS_Store
 Thumbs.db
