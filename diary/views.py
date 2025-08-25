@@ -1,3 +1,9 @@
-from django.shortcuts import render
+from rest_framework import viewsets
+from .models import Entry
+from .serializers import EntrySerializer
 
-# Create your views here.
+
+class EntryViewSet(viewsets.ModelViewSet):
+    """ViewSet для CRUD операций с записями дневника."""
+    queryset = Entry.objects.all()
+    serializer_class = EntrySerializer
