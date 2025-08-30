@@ -7,6 +7,10 @@ from .permissions import IsOwnerOrReadOnly
 from rest_framework.generics import RetrieveUpdateAPIView
 from django.contrib.auth import get_user_model
 from django_filters.rest_framework import DjangoFilterBackend
+from django.contrib.auth.decorators import login_required
+from django.utils.decorators import method_decorator
+from django.views.generic.edit import CreateView
+from django.urls import reverse_lazy
 
 
 User = get_user_model()
@@ -61,9 +65,22 @@ class TagSubscriptionViewSet(viewsets.ModelViewSet):
 
     serializer_class = TagSubscriptionSerializer
     permission_classes = [permissions.IsAuthenticated]
+    queryset = TagSubscription.objects.all()
 
     def get_queryset(self):
         return TagSubscription.objects.filter(user=self.request.user)
 
     def perform_create(self, serializer):
         serializer.save(user=self.request.user)
+
+
+@method_decorator(login_required, name='dispatch')
+class EntryCreateView(CreateView):
+    model = Entry
+    fields = ['title', 'text', 'mood', 'tags']
+    template_name = 'diary/entry_form.html'
+    success_url = reverse_lazy('entry_create')
+
+    def form_valid(self, form):
+        form.instance.user = self.request.user
+        return super().form_valid(form)

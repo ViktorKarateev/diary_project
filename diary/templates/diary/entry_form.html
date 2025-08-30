@@ -1,0 +1,11 @@
+{% extends "diary/base.html" %}
+
+{% block title %}Новая запись{% endblock %}
+
+{% block content %}
+  <form method="post">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button class="btn btn-success" type="submit">Создать запись</button>
+  </form>
+{% endblock %}
