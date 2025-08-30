@@ -1,7 +1,7 @@
 # diary/views.py
-from rest_framework import viewsets
-from .models import Entry, Tag, Mood
-from .serializers import EntrySerializer, TagSerializer, MoodSerializer, UserProfileSerializer
+from rest_framework import viewsets, permissions
+from .models import Entry, Tag, Mood, TagSubscription
+from .serializers import EntrySerializer, TagSerializer, MoodSerializer, UserProfileSerializer, TagSubscriptionSerializer
 from rest_framework.permissions import IsAuthenticated
 from .permissions import IsOwnerOrReadOnly
 from rest_framework.generics import RetrieveUpdateAPIView
@@ -24,7 +24,6 @@ class EntryViewSet(viewsets.ModelViewSet):
     def perform_create(self, serializer):
         # Привязываем пользователя автоматически
         serializer.save(user=self.request.user)
-
 
 
 class TagViewSet(viewsets.ModelViewSet):
@@ -51,3 +50,16 @@ class UserProfileView(RetrieveUpdateAPIView):
     def get_object(self):
         # всегда возвращаем текущего пользователя
         return self.request.user
+
+
+class TagSubscriptionViewSet(viewsets.ModelViewSet):
+    """API для управления подписками на теги."""
+
+    serializer_class = TagSubscriptionSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get_queryset(self):
+        return TagSubscription.objects.filter(user=self.request.user)
+
+    def perform_create(self, serializer):
+        serializer.save(user=self.request.user)
