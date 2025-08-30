@@ -1,0 +1,26 @@
+{% extends "diary/base.html" %}
+
+{% block title %}Мои записи{% endblock %}
+
+{% block content %}
+  {% if entries %}
+    <ul class="list-group">
+      {% for entry in entries %}
+        <li class="list-group-item">
+          <h5>{{ entry.title }}</h5>
+          <p><strong>Создано:</strong> {{ entry.created_at|date:"d.m.Y H:i" }}</p>
+          <p><strong>Настроение:</strong> {{ entry.mood.name }}</p>
+          <p><strong>Теги:</strong>
+            {% for tag in entry.tags.all %}
+              <span class="badge bg-primary">{{ tag.name }}</span>
+            {% empty %}
+              <span class="text-muted">нет тегов</span>
+            {% endfor %}
+          </p>
+        </li>
+      {% endfor %}
+    </ul>
+  {% else %}
+    <p>Записей пока нет.</p>
+  {% endif %}
+{% endblock %}

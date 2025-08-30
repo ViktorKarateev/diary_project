@@ -11,6 +11,8 @@ from django.contrib.auth.decorators import login_required
 from django.utils.decorators import method_decorator
 from django.views.generic.edit import CreateView
 from django.urls import reverse_lazy
+from django.contrib.auth.mixins import LoginRequiredMixin
+from django.views.generic import ListView
 
 
 User = get_user_model()
@@ -84,3 +86,12 @@ class EntryCreateView(CreateView):
     def form_valid(self, form):
         form.instance.user = self.request.user
         return super().form_valid(form)
+
+
+class EntryListView(LoginRequiredMixin, ListView):
+    model = Entry
+    template_name = 'diary/entries_list.html'
+    context_object_name = 'entries'
+
+    def get_queryset(self):
+        return Entry.objects.filter(user=self.request.user).select_related('mood').prefetch_related('tags').order_by('-created_at')
