@@ -77,3 +77,28 @@ class Entry(models.Model):
 
     def __str__(self):
         return f"{self.title} ({self.created_at.date()})"
+
+
+class TagSubscription(models.Model):
+    """Подписка пользователя на интересующий тег."""
+
+    user = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE,
+        related_name="tag_subscriptions",
+        verbose_name="Пользователь",
+    )
+    tag = models.ForeignKey(
+        Tag,
+        on_delete=models.CASCADE,
+        related_name="subscriptions",
+        verbose_name="Тег",
+    )
+
+    class Meta:
+        unique_together = ("user", "tag")
+        verbose_name = "Подписка на тег"
+        verbose_name_plural = "Подписки на теги"
+
+    def __str__(self):
+        return f"{self.user.email} → {self.tag.name}"
