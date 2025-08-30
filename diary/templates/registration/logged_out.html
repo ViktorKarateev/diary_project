@@ -1,0 +1,8 @@
+{% extends "diary/base.html" %}
+
+{% block title %}Выход{% endblock %}
+
+{% block content %}
+  <p class="alert alert-info">Вы вышли из аккаунта.</p>
+  <a class="btn btn-primary" href="{% url 'login' %}">Войти снова</a>
+{% endblock %}
