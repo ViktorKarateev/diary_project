@@ -1,11 +1,12 @@
 # diary/views.py
-from rest_framework import viewsets, permissions
+from rest_framework import viewsets, permissions, filters
 from .models import Entry, Tag, Mood, TagSubscription
 from .serializers import EntrySerializer, TagSerializer, MoodSerializer, UserProfileSerializer, TagSubscriptionSerializer
 from rest_framework.permissions import IsAuthenticated
 from .permissions import IsOwnerOrReadOnly
 from rest_framework.generics import RetrieveUpdateAPIView
 from django.contrib.auth import get_user_model
+from django_filters.rest_framework import DjangoFilterBackend
 
 
 User = get_user_model()
@@ -16,6 +17,9 @@ class EntryViewSet(viewsets.ModelViewSet):
     queryset = Entry.objects.none()  # ← нужно для router, даже если не используется
     serializer_class = EntrySerializer
     permission_classes = [IsAuthenticated, IsOwnerOrReadOnly]
+    filter_backends = [DjangoFilterBackend, filters.OrderingFilter]
+    filterset_fields = ['mood', 'tags']
+    ordering_fields = ['created_at']
 
     def get_queryset(self):
         # Возвращаем только записи текущего пользователя
