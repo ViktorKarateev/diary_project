@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Entry, Tag, Mood
+from .models import Entry, Tag, Mood, TagSubscription
 from django.contrib.auth import get_user_model
 
 User = get_user_model()
@@ -42,3 +42,14 @@ class UserProfileSerializer(serializers.ModelSerializer):
         model = User
         fields = ['id', 'first_name', 'last_name', 'email']
         read_only_fields = ['id', 'email']  # Email только для чтения
+
+
+
+class TagSubscriptionSerializer(serializers.ModelSerializer):
+    """Сериализатор для подписки на тег."""
+
+    user = serializers.HiddenField(default=serializers.CurrentUserDefault())
+
+    class Meta:
+        model = TagSubscription
+        fields = '__all__'
