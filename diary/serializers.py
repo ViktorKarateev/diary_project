@@ -5,13 +5,18 @@ from django.contrib.auth import get_user_model
 User = get_user_model()
 
 class EntrySerializer(serializers.ModelSerializer):
-    """Сериализатор для модели Entry."""
-
     user = serializers.HiddenField(default=serializers.CurrentUserDefault())
 
     class Meta:
         model = Entry
         fields = '__all__'
+
+    def validate_text(self, value):
+        """Запрещаем пустые или пробельные записи."""
+        if not value.strip():
+            raise serializers.ValidationError("Поле 'text' не может быть пустым.")
+        return value
+
 
 
 class TagSerializer(serializers.ModelSerializer):
