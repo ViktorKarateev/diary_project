@@ -27,6 +27,7 @@ INSTALLED_APPS = [
     'diary',
     'rest_framework',
     'django_filters',
+    'drf_yasg',
 ]
 
 MIDDLEWARE = [
