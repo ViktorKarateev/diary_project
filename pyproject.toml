@@ -1,9 +1,10 @@
 [tool.poetry]
-name = "diary-project"
+name = "diary_project"
 version = "0.1.0"
 description = ""
 authors = ["karat <karateev.92@gmail.com >"]
 readme = "README.md"
+packages = [{ include = "diary" }]
 
 [tool.poetry.dependencies]
 python = "^3.13"
