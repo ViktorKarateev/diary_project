@@ -13,6 +13,7 @@ from django.views.generic.edit import CreateView,UpdateView, DeleteView
 from django.urls import reverse_lazy
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.views.generic import ListView
+from django.db.models import Q
 
 
 User = get_user_model()
@@ -94,8 +95,14 @@ class EntryListView(LoginRequiredMixin, ListView):
     context_object_name = 'entries'
 
     def get_queryset(self):
-        return Entry.objects.filter(user=self.request.user).select_related('mood').prefetch_related('tags').order_by('-created_at')
-
+        queryset = Entry.objects.filter(user=self.request.user).select_related('mood').prefetch_related(
+            'tags').order_by('-created_at')
+        query = self.request.GET.get('q')
+        if query:
+            queryset = queryset.filter(
+                Q(title__icontains=query) | Q(text__icontains=query)
+            )
+        return queryset
 
 class RegisterAPIView(generics.CreateAPIView):
     queryset = User.objects.all()
