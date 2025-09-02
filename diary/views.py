@@ -1,7 +1,7 @@
 # diary/views.py
-from rest_framework import viewsets, permissions, filters
+from rest_framework import viewsets, permissions, filters, generics
 from .models import Entry, Tag, Mood, TagSubscription
-from .serializers import EntrySerializer, TagSerializer, MoodSerializer, UserProfileSerializer, TagSubscriptionSerializer
+from .serializers import EntrySerializer, TagSerializer, MoodSerializer, UserProfileSerializer, TagSubscriptionSerializer, RegisterSerializer
 from rest_framework.permissions import IsAuthenticated
 from .permissions import IsOwnerOrReadOnly
 from rest_framework.generics import RetrieveUpdateAPIView
@@ -95,3 +95,9 @@ class EntryListView(LoginRequiredMixin, ListView):
 
     def get_queryset(self):
         return Entry.objects.filter(user=self.request.user).select_related('mood').prefetch_related('tags').order_by('-created_at')
+
+
+class RegisterAPIView(generics.CreateAPIView):
+    queryset = User.objects.all()
+    serializer_class = RegisterSerializer
+    permission_classes = []
