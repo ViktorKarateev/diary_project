@@ -17,6 +17,13 @@
               <span class="text-muted">нет тегов</span>
             {% endfor %}
           </p>
+
+          <!-- КНОПКИ -->
+          <div class="mt-2">
+            <a href="{% url 'diary:entry_edit' entry.pk %}" class="btn btn-sm btn-outline-primary">✏️ Редактировать</a>
+            <a href="{% url 'diary:entry_delete' entry.pk %}" class="btn btn-sm btn-outline-danger">🗑️ Удалить</a>
+          </div>
+
         </li>
       {% endfor %}
     </ul>
