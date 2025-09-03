@@ -3,7 +3,27 @@
 {% block title %}Мои записи{% endblock %}
 
 {% block content %}
+  <!-- Поисковая форма -->
+  <form method="get" class="row g-2 align-items-center mb-3">
+    <div class="col-auto">
+      <input type="search"
+             class="form-control"
+             name="q"
+             placeholder="Поиск по заголовку и содержимому…"
+             value="{{ request.GET.q }}">
+    </div>
+    <div class="col-auto">
+      <button type="submit" class="btn btn-primary">Найти</button>
+      {% if request.GET.q %}
+        <a href="{% url 'diary:entry_list' %}" class="btn btn-outline-secondary">Сбросить</a>
+      {% endif %}
+    </div>
+  </form>
+
   {% if entries %}
+    {% if request.GET.q %}
+      <p class="text-muted">Результаты по запросу «{{ request.GET.q }}»: {{ entries|length }}</p>
+    {% endif %}
     <ul class="list-group">
       {% for entry in entries %}
         <li class="list-group-item">
@@ -25,11 +45,14 @@
             <a href="{% url 'diary:entry_edit' entry.pk %}" class="btn btn-sm btn-outline-primary">✏️ Редактировать</a>
             <a href="{% url 'diary:entry_delete' entry.pk %}" class="btn btn-sm btn-outline-danger">🗑️ Удалить</a>
           </div>
-
         </li>
       {% endfor %}
     </ul>
   {% else %}
-    <p>Записей пока нет.</p>
+    {% if request.GET.q %}
+      <p>Ничего не найдено по запросу «{{ request.GET.q }}».</p>
+    {% else %}
+      <p>Записей пока нет.</p>
+    {% endif %}
   {% endif %}
 {% endblock %}
