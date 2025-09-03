@@ -10,10 +10,10 @@ User = get_user_model()
 class EntryModelTest(TestCase):
     def setUp(self):
         self.user = User.objects.create_user(
-        email='test@example.com',
-        password='1234',
-        username='testuser',  # добавили username
-)
+            email='test@example.com',
+            password='1234',
+            username='testuser',  # добавили username
+        )
         self.mood = Mood.objects.create(name='Радость', emoji='😊')
 
     def test_str_representation(self):
@@ -42,6 +42,9 @@ class EntrySerializerTest(TestCase):
             'title': 'Тестовая запись',
             'text': '   ',
         }
-        serializer = EntrySerializer(data=data, context={'request': self.request})
+        serializer = EntrySerializer(
+            data=data,
+            context={'request': self.request},
+        )
         self.assertFalse(serializer.is_valid())
         self.assertIn('text', serializer.errors)

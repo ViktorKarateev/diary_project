@@ -5,6 +5,7 @@ from django.contrib.auth import get_user_model
 
 User = get_user_model()
 
+
 class EntrySerializer(serializers.ModelSerializer):
     user = serializers.HiddenField(default=serializers.CurrentUserDefault())
 
@@ -17,7 +18,6 @@ class EntrySerializer(serializers.ModelSerializer):
         if not value.strip():
             raise serializers.ValidationError("Поле 'text' не может быть пустым.")
         return value
-
 
 
 class TagSerializer(serializers.ModelSerializer):
@@ -45,7 +45,6 @@ class UserProfileSerializer(serializers.ModelSerializer):
         read_only_fields = ['id', 'email']  # Email только для чтения
 
 
-
 class TagSubscriptionSerializer(serializers.ModelSerializer):
     """Сериализатор для подписки на тег."""
 
@@ -54,6 +53,7 @@ class TagSubscriptionSerializer(serializers.ModelSerializer):
     class Meta:
         model = TagSubscription
         fields = '__all__'
+
 
 class RegisterSerializer(serializers.ModelSerializer):
     password = serializers.CharField(write_only=True)
