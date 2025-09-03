@@ -12,7 +12,7 @@ from django.utils.decorators import method_decorator
 from django.views.generic.edit import CreateView,UpdateView, DeleteView
 from django.urls import reverse_lazy
 from django.contrib.auth.mixins import LoginRequiredMixin
-from django.views.generic import ListView
+from django.views.generic import ListView, DetailView
 from django.db.models import Q
 
 
@@ -127,3 +127,9 @@ class EntryDeleteView(LoginRequiredMixin, DeleteView):
 
     def get_queryset(self):
         return Entry.objects.filter(user=self.request.user)
+
+
+class EntryDetailView(DetailView):
+    model = Entry
+    template_name = "diary/entry_detail.html"
+    context_object_name = "entry"
