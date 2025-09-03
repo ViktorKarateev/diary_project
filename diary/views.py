@@ -1,4 +1,4 @@
-# diary/views.py (верх файла – импорты)
+# diary/views.py
 from rest_framework import viewsets, permissions, filters, generics
 from .models import Entry, Tag, Mood, TagSubscription
 from .serializers import (
@@ -28,9 +28,14 @@ class EntryViewSet(viewsets.ModelViewSet):
     queryset = Entry.objects.none()  # нужно для router
     serializer_class = EntrySerializer
     permission_classes = [IsAuthenticated, IsOwnerOrReadOnly]
-    filter_backends = [DjangoFilterBackend, filters.OrderingFilter]
-    filterset_fields = ['mood', 'tags']
-    ordering_fields = ['created_at']
+    filter_backends = [
+        DjangoFilterBackend,
+        filters.OrderingFilter,
+        filters.SearchFilter,  # ← добавили поиск
+    ]
+    filterset_fields = ["mood", "tags"]
+    ordering_fields = ["created_at"]
+    search_fields = ["title", "text"]  # ← поиск по заголовку и тексту
 
     def get_queryset(self):
         return Entry.objects.filter(user=self.request.user)
@@ -79,8 +84,8 @@ class TagSubscriptionViewSet(viewsets.ModelViewSet):
 
 class EntryCreateView(LoginRequiredMixin, CreateView):
     model = Entry
-    fields = ['title', 'text', 'mood', 'tags']
-    template_name = 'diary/entry_form.html'
+    fields = ["title", "text", "mood", "tags"]
+    template_name = "diary/entry_form.html"
 
     def form_valid(self, form):
         form.instance.user = self.request.user
@@ -92,18 +97,17 @@ class EntryCreateView(LoginRequiredMixin, CreateView):
 
 class EntryListView(LoginRequiredMixin, ListView):
     model = Entry
-    template_name = 'diary/entries_list.html'
-    context_object_name = 'entries'
+    template_name = "diary/entries_list.html"
+    context_object_name = "entries"
 
     def get_queryset(self):
         queryset = (
-            Entry.objects
-            .filter(user=self.request.user)
-            .select_related('mood')
-            .prefetch_related('tags')
-            .order_by('-created_at')
+            Entry.objects.filter(user=self.request.user)
+            .select_related("mood")
+            .prefetch_related("tags")
+            .order_by("-created_at")
         )
-        query = self.request.GET.get('q')
+        query = self.request.GET.get("q")
         if query:
             queryset = queryset.filter(
                 Q(title__icontains=query) | Q(text__icontains=query)
@@ -119,9 +123,9 @@ class RegisterAPIView(generics.CreateAPIView):
 
 class EntryUpdateView(LoginRequiredMixin, UpdateView):
     model = Entry
-    fields = ['title', 'text', 'mood', 'tags']
-    template_name = 'diary/entry_form.html'
-    success_url = reverse_lazy('diary:entry_list')
+    fields = ["title", "text", "mood", "tags"]
+    template_name = "diary/entry_form.html"
+    success_url = reverse_lazy("diary:entry_list")
 
     def get_queryset(self):
         return Entry.objects.filter(user=self.request.user)
@@ -129,8 +133,8 @@ class EntryUpdateView(LoginRequiredMixin, UpdateView):
 
 class EntryDeleteView(LoginRequiredMixin, DeleteView):
     model = Entry
-    template_name = 'diary/entry_confirm_delete.html'
-    success_url = reverse_lazy('diary:entry_list')
+    template_name = "diary/entry_confirm_delete.html"
+    success_url = reverse_lazy("diary:entry_list")
 
     def get_queryset(self):
         return Entry.objects.filter(user=self.request.user)
