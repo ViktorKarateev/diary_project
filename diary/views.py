@@ -1,25 +1,31 @@
-# diary/views.py
+# diary/views.py (верх файла – импорты)
 from rest_framework import viewsets, permissions, filters, generics
 from .models import Entry, Tag, Mood, TagSubscription
-from .serializers import EntrySerializer, TagSerializer, MoodSerializer, UserProfileSerializer, TagSubscriptionSerializer, RegisterSerializer
+from .serializers import (
+    EntrySerializer,
+    TagSerializer,
+    MoodSerializer,
+    UserProfileSerializer,
+    TagSubscriptionSerializer,
+    RegisterSerializer,
+)
 from rest_framework.permissions import IsAuthenticated
 from .permissions import IsOwnerOrReadOnly
 from rest_framework.generics import RetrieveUpdateAPIView
 from django.contrib.auth import get_user_model
 from django_filters.rest_framework import DjangoFilterBackend
-from django.views.generic.edit import CreateView,UpdateView, DeleteView
 from django.urls import reverse_lazy, reverse
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.views.generic import ListView, DetailView
+from django.views.generic.edit import CreateView, UpdateView, DeleteView
 from django.db.models import Q
-
 
 User = get_user_model()
 
 
 class EntryViewSet(viewsets.ModelViewSet):
     """ViewSet для CRUD операций с записями дневника."""
-    queryset = Entry.objects.none()  # ← нужно для router, даже если не используется
+    queryset = Entry.objects.none()  # нужно для router
     serializer_class = EntrySerializer
     permission_classes = [IsAuthenticated, IsOwnerOrReadOnly]
     filter_backends = [DjangoFilterBackend, filters.OrderingFilter]
@@ -27,23 +33,21 @@ class EntryViewSet(viewsets.ModelViewSet):
     ordering_fields = ['created_at']
 
     def get_queryset(self):
-        # Возвращаем только записи текущего пользователя
         return Entry.objects.filter(user=self.request.user)
 
     def perform_create(self, serializer):
-        # Привязываем пользователя автоматически
         serializer.save(user=self.request.user)
 
 
 class TagViewSet(viewsets.ModelViewSet):
     """CRUD для тегов."""
-    queryset = Tag.objects.all()  # ← ОБЯЗАТЕЛЬНО
+    queryset = Tag.objects.all()
     serializer_class = TagSerializer
 
 
 class MoodViewSet(viewsets.ModelViewSet):
     """CRUD для настроений."""
-    queryset = Mood.objects.all()  # ← ОБЯЗАТЕЛЬНО
+    queryset = Mood.objects.all()
     serializer_class = MoodSerializer
 
 
@@ -57,13 +61,11 @@ class UserProfileView(RetrieveUpdateAPIView):
     permission_classes = [IsAuthenticated]
 
     def get_object(self):
-        # всегда возвращаем текущего пользователя
         return self.request.user
 
 
 class TagSubscriptionViewSet(viewsets.ModelViewSet):
     """API для управления подписками на теги."""
-
     serializer_class = TagSubscriptionSerializer
     permission_classes = [permissions.IsAuthenticated]
     queryset = TagSubscription.objects.all()
@@ -85,9 +87,7 @@ class EntryCreateView(LoginRequiredMixin, CreateView):
         return super().form_valid(form)
 
     def get_success_url(self):
-        # БЫЛА ОШИБКА: не хватало закрывающей скобки )
         return reverse("diary:entry_detail", kwargs={"pk": self.object.pk})
-
 
 
 class EntryListView(LoginRequiredMixin, ListView):
@@ -96,8 +96,13 @@ class EntryListView(LoginRequiredMixin, ListView):
     context_object_name = 'entries'
 
     def get_queryset(self):
-        queryset = Entry.objects.filter(user=self.request.user).select_related('mood').prefetch_related(
-            'tags').order_by('-created_at')
+        queryset = (
+            Entry.objects
+            .filter(user=self.request.user)
+            .select_related('mood')
+            .prefetch_related('tags')
+            .order_by('-created_at')
+        )
         query = self.request.GET.get('q')
         if query:
             queryset = queryset.filter(
@@ -105,27 +110,30 @@ class EntryListView(LoginRequiredMixin, ListView):
             )
         return queryset
 
+
 class RegisterAPIView(generics.CreateAPIView):
     queryset = User.objects.all()
     serializer_class = RegisterSerializer
     permission_classes = []
 
-class EntryUpdateView(LoginRequiredMixin, UpdateView):
-        model = Entry
-        fields = ['title', 'text', 'mood', 'tags']
-        template_name = 'diary/entry_form.html'
-        success_url = reverse_lazy('diary:entry_list')  # было 'entry_list'
 
-        def get_queryset(self):
-            return Entry.objects.filter(user=self.request.user)
+class EntryUpdateView(LoginRequiredMixin, UpdateView):
+    model = Entry
+    fields = ['title', 'text', 'mood', 'tags']
+    template_name = 'diary/entry_form.html'
+    success_url = reverse_lazy('diary:entry_list')
+
+    def get_queryset(self):
+        return Entry.objects.filter(user=self.request.user)
+
 
 class EntryDeleteView(LoginRequiredMixin, DeleteView):
-        model = Entry
-        template_name = 'diary/entry_confirm_delete.html'
-        success_url = reverse_lazy('diary:entry_list')  # было 'entry_list'
+    model = Entry
+    template_name = 'diary/entry_confirm_delete.html'
+    success_url = reverse_lazy('diary:entry_list')
 
-        def get_queryset(self):
-            return Entry.objects.filter(user=self.request.user)
+    def get_queryset(self):
+        return Entry.objects.filter(user=self.request.user)
 
 
 class EntryDetailView(LoginRequiredMixin, DetailView):
@@ -134,5 +142,5 @@ class EntryDetailView(LoginRequiredMixin, DetailView):
     context_object_name = "entry"
 
     def get_queryset(self):
-        # чтобы нельзя было смотреть чужие записи по URL
+        # нельзя смотреть чужие записи по прямой ссылке
         return Entry.objects.filter(user=self.request.user)

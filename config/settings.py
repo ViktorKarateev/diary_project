@@ -140,7 +140,6 @@ REST_FRAMEWORK = {
 }
 
 
-
 LOGIN_REDIRECT_URL = '/entries/new/'
 LOGIN_URL = '/auth/login/'
 

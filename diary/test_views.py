@@ -3,7 +3,9 @@ from rest_framework import status
 from django.contrib.auth import get_user_model
 from diary.models import Mood, Entry
 
+
 User = get_user_model()
+
 
 class EntryAPITest(APITestCase):
     def setUp(self):
